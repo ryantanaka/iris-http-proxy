@@ -11,7 +11,7 @@ dax = ADAG("workflow_that_will_fail", auto=False)
 # Add executable(s)
 wc = Executable(name="wc")
 wc.addPFN(PFN(BASE_DIR + "/wc.sh", "local"))
-wc.addProfile(Profile(Namespace.ENV, "http_proxy", "http://workflow.isi.edu:8000")
+wc.addProfile(Profile(Namespace.ENV, "http_proxy", "http://workflow.isi.edu:8000"))
 dax.addExecutable(wc)
 
 # Add input file
