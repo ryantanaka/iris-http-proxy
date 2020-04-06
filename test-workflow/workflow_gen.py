@@ -6,35 +6,41 @@ from Pegasus.DAX3 import *
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
 # Create a abstract dag
-dax = ADAG("workflow_that_will_fail", auto=False)
+dax = ADAG("TEST-WORKFLOW", auto=False)
 
 # Add executable(s)
-wc = Executable(name="wc")
+wc = Executable(name="wc", installed=False, arch=Arch.X86_64, os=OS.LINUX)
 wc.addPFN(PFN(BASE_DIR + "/wc.sh", "local"))
-wc.addProfile(Profile(Namespace.ENV, "http_proxy", "http://workflow.isi.edu:8000"))
 dax.addExecutable(wc)
+
+tar = Executable(name="tar", installed=True, arch=Arch.X86_64, os=OS.LINUX)
+tar.addPFN(PFN("/usr/bin/tar", "condorpool"))
+dax.addExecutable(tar)
 
 # Add input file
 _if = File("input.txt")
 _if.addPFN(PFN(BASE_DIR + "/input.txt", "local"))
+dax.addFile(_if)
 
 # Add jobs
 of = File("output.txt")
-wc_job1 = Job(wc)
-wc_job1.addArguments(_if.name, of.name)
-wc_job1.uses(_if, link=Link.INPUT, transfer=False)
-wc_job1.uses(of, link=Link.OUTPUT, transfer=False)
-dax.addJob(wc_job1)
+wc_job = Job(wc)
+wc_job.addArguments(_if.name, of.name)
+wc_job.uses(_if, link=Link.INPUT, transfer=False)
+wc_job.uses(of, link=Link.OUTPUT, transfer=True)
+dax.addJob(wc_job)
 
-wc_job2 = Job(wc)
-wc_job2.addArguments(_if.name, of.name)
-wc_job2.uses(_if, link=Link.INPUT, transfer=False)
-wc_job2.uses(of, link=Link.OUTPUT, transfer=True)
-dax.addJob(wc_job2)
+final_of = File("final_output.tar.gz")
+tar_job = Job(tar)
+tar_job.addArguments("cvzf", final_of, _if, of)
+tar_job.uses(_if, link=Link.INPUT, transfer=False)
+tar_job.uses(of, link=Link.INPUT, transfer=False)
+tar_job.uses(final_of, link=Link.OUTPUT, transfer=True)
+dax.addJob(tar_job)
 
 # Add dependency 
-# we want wc_job2 to run after wc_job1 so that we see cache miss, then hit
-dax.addDependency(Dependency(parent=wc_job1, child=wc_job2))
+dax.addDependency(Dependency(parent=wc_job, child=tar_job))
+
 
 # Write the DAX to a file
 with open("workflow.xml", "w") as f:

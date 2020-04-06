@@ -34,8 +34,7 @@ class CacheHandler(http.server.SimpleHTTPRequestHandler):
       if not os.path.exists(cache_filename):
           print("cache miss "+ self.path)
           with open(cache_filename + ".temp", "wb") as output:
-            #print(self.path)
-            req = urllib.request.Request("http:/" + self.path)
+            req = urllib.request.Request(self.path)
             for k in self.headers:
                 if k not in ["Host"]:
                     req.add_header(k, self.headers[k])
