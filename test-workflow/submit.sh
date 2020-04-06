@@ -17,7 +17,7 @@ mkdir -p generated
 envsubst < $TOP_DIR/sites.xml.template > $TOP_DIR/sites.xml
 
 # generate the workflow
-./workflow_gen.py
+#./workflow_gen.py
 
 # plan and submit the  workflow
 pegasus-plan \
