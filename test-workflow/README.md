@@ -1,9 +1,6 @@
 This test workflow is structured as follows:
 
-```
-input.txt -> wc.sh -> output.txt -> /usr/bin/tar -> final_output.tar.gz
-    \_________________________________↗
-```
+![Workflow](wf.jpg)
 
 Prior to submitting this workflow, you will need to specify
 the following in `submit.sh` (lines 16-20):
