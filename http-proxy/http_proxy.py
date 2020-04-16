@@ -60,8 +60,6 @@ class CacheHandler(http.server.SimpleHTTPRequestHandler):
                 req = urllib.request.Request(self.path)
 
                 for k, v in self.headers.items():
-                    print(k, v)
-
                     # for each header that is not "Host"
                     # add that header to the request
                     if k not in ["Host"]:
