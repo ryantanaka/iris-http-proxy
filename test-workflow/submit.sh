@@ -13,11 +13,11 @@ mkdir -p $WORK_DIR
 export RUN_ID=test-workflow-`date +'%s'`
 
 # SET THESE VARIABLES
-SSH_PRIVATE_KEY_PATH="1"
-ORIGIN_SHARED_SCRATCH_PATH="2"
-ORIGIN_FILE_SERVER_GET_URL="3"
-ORIGIN_FILE_SERVER_PUT_URL="4"
-HTTP_PROXY_URL="5"
+SSH_PRIVATE_KEY_PATH=/home/$USER/.ssh/workflow
+ORIGIN_SHARED_SCRATCH_PATH=/home/$USER/public_html/
+ORIGIN_FILE_SERVER_GET_URL=http://<ip>/~$USER/
+ORIGIN_FILE_SERVER_PUT_URL=scp://$USER@<ip>/home/$USER/public_html
+HTTP_PROXY_URL=UNL-ComputeC1:8000
 
 cat > sites.xml << EOF
 <?xml version="1.0" encoding="UTF-8"?>
@@ -52,11 +52,18 @@ cat > sites.xml << EOF
 EOF
 
 # generate the workflow
+PYTHONPATH=`pegasus-config --python`
+export PYTHONPATH=".:$PYTHONPATH"
+
 ./workflow_gen.py
 
 # pegasus properties 
 cat > pegasus.conf << EOF
 pegasus.data.configuration = nonsharedfs
+pegasus.monitord.encoding = json
+pegasus.catalog.workflow.amqp.url = amqp://friend:donatedata@msgs.pegasus.isi.edu:5672/prod/workflows
+dagman.retry = 0
+pegasus.transfer.arguments = -m 1
 EOF
 
 # plan and submit the  workflow
