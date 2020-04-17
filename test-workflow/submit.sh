@@ -15,8 +15,11 @@ export RUN_ID=test-workflow-`date +'%s'`
 # SET THESE VARIABLES
 SSH_PRIVATE_KEY_PATH=/home/$USER/.ssh/workflow
 ORIGIN_SHARED_SCRATCH_PATH=/home/$USER/public_html/
-ORIGIN_FILE_SERVER_GET_URL=http://<ip>/~$USER/
+
+# FILL IN <ip>
+ORIGIN_FILE_SERVER_GET_URL=http://<ip>/~$USER/  
 ORIGIN_FILE_SERVER_PUT_URL=scp://$USER@<ip>/home/$USER/public_html
+
 HTTP_PROXY_URL=UNL-ComputeC1:8000
 
 cat > sites.xml << EOF
@@ -74,6 +77,7 @@ pegasus-plan \
     --relative-dir $RUN_ID \
     --sites condorpool \
     --staging-site condorpool=origin \
+    --output-site local \
     --dax workflow.xml \
     --cluster horizontal \
     --submit
